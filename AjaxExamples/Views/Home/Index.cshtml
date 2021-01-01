@@ -1,0 +1,137 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="p-4">
+                <h4 class="text-center"> GET A USER</h4>
+                <input type="text" id="userid" class="form-control" />
+                <input id="getuser" type="submit" class="mt-2 btn btn-info btn-fş" value="GET USER" />
+            </div>
+            <div id="userdetails">
+
+            </div>
+        </div>
+        <div class="col-md-6">
+
+            <div class="p-4">
+                <h4 class="text-center"> GET A USER</h4>
+                <input id="getalluser" type="submit" class="mt-2 btn btn-info btn-xs text-center btn-block" value="GET ALL USER" />
+            </div>
+
+
+            <div id="alluserdetails">
+                <div id="loading" class="d-flex justify-content-center" style="display:none!important">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-md-12">
+            <div class="p-5  mx-auto w-75">
+                <h4 class="text-center"> ADD A USER</h4>
+                <div class="input-group p-4">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">ID</span>
+                    </div>
+                    <input type="text" id="adduserid" class="form-control">
+                </div>
+                <div class="input-group p-4">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">NAME</span>
+                    </div>
+                    <input type="text" id="username" class="form-control">
+                </div>
+                <div class="input-group p-4">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">SURNAME</span>
+                    </div>
+                    <input type="text" id="usersurname" class="form-control">
+                </div>
+
+            </div>
+            <input id="adduser" type="submit" class="mt-2 btn btn-info btn-xs text-center btn-block" value="GET ALL USER" />
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $("#getuser").click(function () {
+                $.ajax({
+                    contentType: "application/json",
+                    dataType: "Json",
+                    type: "get",
+                    url: "/Home/GetUserbyID",
+                    data: { userid: $("#userid").val() },
+                    success: function (result) {
+                        let result1 = jQuery.parseJSON(result);
+                        let htmlstring = `<table class="table table-hover table-sm"> <tr> <th>USER ID</th> <td> ${result1.Id} </td> </tr>
+<tr> <th>Name</th> <td>${result1.Name} </td> </tr> <tr> <th>Surname</th> <td> ${result1.Surname}</td> </tr> <tr> <th>BirthDay</th> <td>  ${result1.BirthDateTime}</td> </tr> </table>`;
+                        $("#userdetails").html(htmlstring);
+                    }
+
+                })
+            })
+            $("#getalluser").click(function () {
+                $.ajax({
+                    contentType: "application/json",
+                    dataType: "Json",
+                    type: "get",
+                    url: "/Home/ListUser",
+                    beforeSend: function myfunction() {
+                        $("#loading").show();
+                    },
+                    success: function (result) {
+                        $("#loading").hide();
+                        var result1 = jQuery.parseJSON(result);
+                        let htmlstring = ` <table class="table table-hover table-sm"> <tr> <th> ID </th> <th> Name </th> <th> Surname</th>   <th> BirthDateTime</th></tr>`;
+                        $.each(result1, (index, value) => {
+                            htmlstring += `<tr> <td> ${value.Id} </td> <td> ${value.Name} </td> <td> ${value.Surname}</td> <td> ${value.BirthDateTime}</td>  </tr>`
+                        });
+                        htmlstring += `</table>`;
+                        $("#alluserdetails").html(htmlstring);
+                    }
+
+                })
+            });
+            $("#adduser").click(function () {
+                var d = new Date();
+
+                var user = {
+                    Id: $("#adduserid").val(),
+                    Name: $("#username").val(),
+
+                    Surname: $("#usersurname").val(),
+                    BirthDateTime: "@DateTime.Now.ToString()"
+                };
+
+                $.ajax({
+                    type: "post",
+                    url: "/Home/AddUser",
+                    data: user,
+                    success: function (result) {
+                    }
+
+                })
+            });
+
+        });
+    </script>
+
+
+}
